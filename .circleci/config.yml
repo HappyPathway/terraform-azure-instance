@@ -34,7 +34,7 @@ jobs:
       - build
     filters:
       only:
-        - /release\/*/
+        - /release-*/
     working_directory: /go/src/github.com/HappyPathway/terraform-azure-instance
     steps:
       - checkout
@@ -42,5 +42,5 @@ jobs:
         name: "Publish Release on GitHub"
         command: |
           go get github.com/tcnksm/ghr
-          VERSION=$(echo ${CIRCLE_BRANCH} | awk -F/ '{ print $NF }')
+          VERSION=$(echo ${CIRCLE_BRANCH} | awk -F- '{ print $NF }')
           ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} .
