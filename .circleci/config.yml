@@ -27,14 +27,15 @@ jobs:
       - run: go test -v ./...
 
   release:
+    requires:
+      - test
     docker:
       # specify the version
       - image: circleci/golang:1.9
-    requires:
-      - test
     filters:
-      only:
-        - /release-*/
+      branch:
+        only:
+          - /release-*/
     working_directory: /go/src/github.com/HappyPathway/terraform-azure-instance
     steps:
       - checkout
