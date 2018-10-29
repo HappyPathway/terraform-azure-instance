@@ -31,7 +31,7 @@ jobs:
       # specify the version
       - image: circleci/golang:1.9
     requires:
-      - build
+      - test
     filters:
       only:
         - /release-*/
@@ -39,11 +39,11 @@ jobs:
     steps:
       - checkout
       - run:
-        name: "Publish Release on GitHub"
-        command: |
-          go get github.com/tcnksm/ghr
-          VERSION=$(echo ${CIRCLE_BRANCH} | awk -F- '{ print $NF }')
-          ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} .
+          name: "Publish Release on GitHub"
+          command: |
+            go get github.com/tcnksm/ghr
+            VERSION=$(echo ${CIRCLE_BRANCH} | awk -F- '{ print $NF }')
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} .
 
 workflows:
   version: 2
