@@ -3,7 +3,7 @@
 # Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2
 jobs:
-  build:
+  test:
     docker:
       # specify the version
       - image: circleci/golang:1.9
@@ -26,7 +26,7 @@ jobs:
       - run: go get -v -t -d ./...
       - run: go test -v ./...
 
-  publish-github-release:
+  release:
     docker:
       # specify the version
       - image: circleci/golang:1.9
@@ -44,3 +44,10 @@ jobs:
           go get github.com/tcnksm/ghr
           VERSION=$(echo ${CIRCLE_BRANCH} | awk -F- '{ print $NF }')
           ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} .
+
+workflows:
+  version: 2
+  test_and_release:
+    jobs:
+      - test
+      - release
