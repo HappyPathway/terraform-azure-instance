@@ -1,0 +1,46 @@
+# Golang CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-go/ for more details
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version
+      - image: circleci/golang:1.9
+      
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    #### TEMPLATE_NOTE: go expects specific checkout path representing url
+    #### expecting it in the form of
+    ####   /go/src/github.com/circleci/go-tool
+    ####   /go/src/bitbucket.org/circleci/go-tool
+    working_directory: /go/src/github.com/HappyPathway/terraform-azure-instance
+    steps:
+      - checkout
+
+      # specify any bash command here prefixed with `run: `
+      - run: curl -L -s https://releases.hashicorp.com/terraform/0.11.10/terraform_0.11.10_linux_amd64.zip -o /go/bin/terraform.zip && unzip /go/bin/terraform.zip -d /go/bin && chmod +x /go/bin/terraform
+      - run: go get -v -t -d ./...
+      - run: go test -v ./...
+
+  publish-github-release:
+    docker:
+      # specify the version
+      - image: circleci/golang:1.9
+    requires:
+      - build
+    filters:
+      only:
+        - /release\/*/
+    working_directory: /go/src/github.com/HappyPathway/terraform-azure-instance
+    steps:
+      - checkout
+      - run:
+        name: "Publish Release on GitHub"
+        command: |
+          go get github.com/tcnksm/ghr
+          VERSION=$(echo ${CIRCLE_BRANCH} | awk -F/ '{ print $NF }')
+          ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} .
