@@ -4,11 +4,6 @@
 version: 2
 jobs:
   test_and_release:
-    filters:
-      branch:
-        only:
-          - /release-*/
-
     docker:
       # specify the version
       - image: circleci/golang:1.9
@@ -42,4 +37,8 @@ workflows:
   version: 2
   test_and_release:
     jobs:
-    - test_and_release
+    - test_and_release:
+        filters:  
+          branches:
+            only:
+              - /release-.*/
