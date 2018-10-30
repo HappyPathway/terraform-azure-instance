@@ -77,6 +77,6 @@ resource "azurerm_virtual_machine" "main" {
 
   tags {
     environment = "${var.env}"
-    cicd = "True"
+    cicd = "False"
   }
 }
