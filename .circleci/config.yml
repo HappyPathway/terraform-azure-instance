@@ -3,7 +3,7 @@
 # Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2
 jobs:
-  build:
+  test:
     docker:
       # specify the version
       - image: circleci/golang:1.9
@@ -26,21 +26,29 @@ jobs:
       - run: go get -v -t -d ./...
       - run: go test -v ./...
 
-  publish-github-release:
+  release:
+    requires:
+      - test
     docker:
       # specify the version
       - image: circleci/golang:1.9
-    requires:
-      - build
     filters:
-      only:
-        - /release\/*/
+      branch:
+        only:
+          - /release-*/
     working_directory: /go/src/github.com/HappyPathway/terraform-azure-instance
     steps:
       - checkout
       - run:
-        name: "Publish Release on GitHub"
-        command: |
-          go get github.com/tcnksm/ghr
-          VERSION=$(echo ${CIRCLE_BRANCH} | awk -F/ '{ print $NF }')
-          ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} .
+          name: "Publish Release on GitHub"
+          command: |
+            go get github.com/tcnksm/ghr
+            VERSION=$(echo ${CIRCLE_BRANCH} | awk -F- '{ print $NF }')
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} .
+
+workflows:
+  version: 2
+  test_and_release:
+    jobs:
+      - test
+      - release
